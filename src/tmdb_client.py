@@ -30,3 +30,42 @@ class TMDbClient:
         r = requests.get(f"{self.base_url}/tv/{tv_id}", params=params, timeout=20)
         r.raise_for_status()
         return r.json()
+
+    def get_similar_tv(self, tv_id: int, page: int = 1) -> list[dict]:
+        params = {"api_key": self.api_key, "page": page}
+        r = requests.get(f"{self.base_url}/tv/{tv_id}/similar", params=params, timeout=20)
+        r.raise_for_status()
+        data = r.json()
+        return data.get("results", [])
+
+    def get_tv_watch_providers(self, tv_id: int) -> dict:
+        params = {"api_key": self.api_key}
+        r = requests.get(f"{self.base_url}/tv/{tv_id}/watch/providers", params=params, timeout=20)
+        r.raise_for_status()
+        return r.json()
+
+    def list_tv_providers(self, watch_region: str) -> list[dict]:
+        params = {"api_key": self.api_key, "watch_region": watch_region}
+        r = requests.get(f"{self.base_url}/watch/providers/tv", params=params, timeout=20)
+        r.raise_for_status()
+        return r.json().get("results", [])
+
+    def discover_tv(
+        self,
+        watch_region: str,
+        with_watch_providers: str,
+        with_watch_monetization_types: str = "flatrate",
+        page: int = 1,
+        sort_by: str = "popularity.desc",
+    ) -> dict:
+        params = {
+            "api_key": self.api_key,
+            "watch_region": watch_region,
+            "with_watch_providers": with_watch_providers,  # e.g. "8|119"
+            "with_watch_monetization_types": with_watch_monetization_types,
+            "sort_by": sort_by,
+            "page": page,
+        }
+        r = requests.get(f"{self.base_url}/discover/tv", params=params, timeout=20)
+        r.raise_for_status()
+        return r.json()
